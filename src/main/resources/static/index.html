@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoDash - Advanced Crypto Analytics</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .header p {
+      color: #7f8c8d;
+      font-size: 1.1rem;
+    }
+    .controls {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    select, button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    select {
+      background: #f8f9fa;
+      color: #2c3e50;
+      border: 2px solid #e9ecef;
+      min-width: 200px;
+    }
+    button {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      padding: 12px 30px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border: 1px solid #f0f0f0;
+    }
+    .card h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+    }
+    .price-display {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #27ae60;
+      margin: 15px 0;
+    }
+    .price-change {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .positive { background: #d4edda; color: #155724; }
+    .negative { background: #f8d7da; color: #721c24; }
+    .price-timeline {
+      display: flex;
+      justify-content: space-between;
+      margin: 15px 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .timeline-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      min-width: 80px;
+    }
+    .timeline-price {
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+    .timeline-label {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    .best-buy {
+      background: #d4edda !important;
+      border-color: #c3e6cb !important;
+    }
+    .best-buy .timeline-price {
+      color: #155724;
+    }
+    .tip-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 20px;
+    }
+    .tip-section h3 {
+      color: white;
+      margin-bottom: 15px;
+    }
+    .tip-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .loading {
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-chart-line"></i> CryptoDash</h1>
+      <p>Advanced Cryptocurrency Analytics & Investment Insights</p>
+    </div>
+    
+    <div class="controls">
+      <select id="crypto">
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+        <option value="dogecoin">Dogecoin (DOGE)</option>
+        <option value="solana">Solana (SOL)</option>
+        <option value="cardano">Cardano (ADA)</option>
+        <option value="litecoin">Litecoin (LTC)</option>
+        <option value="ripple">Ripple (XRP)</option>
+      </select>
+      <button onclick="getCryptoData()"><i class="fas fa-sync-alt"></i> Get Analytics</button>
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h3><i class="fas fa-dollar-sign"></i> Current Price</h3>
+        <div id="priceData" class="loading">Select a cryptocurrency to view price data</div>
+      </div>
+      
+      <div class="card">
+        <h3><i class="fas fa-chart-line"></i> Price History</h3>
+        <div id="priceHistory" class="loading">Get crypto data to view price history</div>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <h3><i class="fas fa-calculator"></i> Portfolio Calculator</h3>
+        <div id="portfolioCalculator">
+          <div style="margin-bottom: 15px;">
+            <label>Investment Amount ($):</label>
+            <input type="number" id="investmentAmount" placeholder="1000" min="1" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label>Purchase Price ($):</label>
+            <input type="number" id="purchasePrice" placeholder="Enter your buy price" min="0.01" step="0.01" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
+          </div>
+          <button onclick="calculatePortfolio()" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Calculate P&L</button>
+          <div id="portfolioResult" style="margin-top: 15px;"></div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3><i class="fas fa-clock"></i> Best Buy Opportunity</h3>
+        <div id="bestBuyTime" class="loading">Analyze price history to find best entry point</div>
+      </div>
+    </div>
+
+    <div class="tip-section">
+      <h3><i class="fas fa-lightbulb"></i> Investment Insight</h3>
+      <div id="tipData" class="tip-text">Get personalized investment advice based on current market conditions</div>
+    </div>
+  </div>
+
+  <script>
+    let currentCryptoData = null;
+    let priceHistoryData = null;
+
+    async function getCryptoData() {
+      const coin = document.getElementById('crypto').value;
+      const priceDiv = document.getElementById('priceData');
+      const tipDiv = document.getElementById('tipData');
+      const historyDiv = document.getElementById('priceHistory');
+      const bestBuyDiv = document.getElementById('bestBuyTime');
+      
+      // Reset calculator and history when switching crypto
+      resetPortfolioCalculator();
+      historyDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading price history...</div>';
+      bestBuyDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Analyzing best buy opportunity...</div>';
+      
+      priceDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading price data...</div>';
+      tipDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Generating insights...</div>';
+      
+      try {
+        // Get price and history data - using the Spring Boot endpoint
+        const priceResponse = await fetch(`/crypto-info?coin=${coin}`);
+        const priceData = await priceResponse.json();
+        
+        console.log('Price API Response:', priceData);
+        console.log('Raw Price JSON:', JSON.stringify(priceData, null, 2));
+        
+        if (priceData.error) {
+          if (priceResponse.status === 429) {
+            priceDiv.innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> Rate limit reached. Please wait 30 seconds before trying again.</div>`;
+            tipDiv.innerHTML = `<div class="error">Please wait before making another request.</div>`;
+            historyDiv.innerHTML = '<div class="error">Rate limit reached</div>';
+            bestBuyDiv.innerHTML = '<div class="error">Rate limit reached</div>';
+            
+            // Auto-retry after 30 seconds
+            setTimeout(() => {
+              priceDiv.innerHTML = '<div class="loading">Ready to try again...</div>';
+              tipDiv.innerHTML = 'Click "Get Analytics" to retry.';
+              historyDiv.innerHTML = '<div class="loading">Ready to try again...</div>';
+              bestBuyDiv.innerHTML = '<div class="loading">Ready to try again...</div>';
+            }, 30000);
+          } else {
+            priceDiv.innerHTML = `<div class="error">${priceData.error}</div>`;
+            historyDiv.innerHTML = '<div class="error">Failed to load price history</div>';
+            bestBuyDiv.innerHTML = '<div class="error">Failed to analyze best buy opportunity</div>';
+          }
+          return;
+        }
+
+        // Store data for portfolio calculator and history
+        currentCryptoData = priceData;
+        priceHistoryData = priceData.price_history;
+
+        // Display price data
+        const changeClass = priceData.price_change_7d >= 0 ? 'positive' : 'negative';
+        const changeIcon = priceData.price_change_7d >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        priceDiv.innerHTML = `
+          <div class="price-display">$${priceData.price.toLocaleString()}</div>
+          <div class="price-change ${changeClass}">
+            <i class="fas ${changeIcon}"></i> ${priceData.price_change_7d >= 0 ? '+' : ''}${priceData.price_change_7d.toFixed(2)}% (7d)
+          </div>
+        `;
+
+        // Auto-fill purchase price with current price
+        document.getElementById('purchasePrice').placeholder = `Current: $${priceData.price}`;
+
+        // Display price history and best buy analysis
+        displayPriceHistory(priceData.price_history);
+        analyzeBestBuyOpportunity(priceData.price_history, priceData.price);
+
+        // Display investment tip
+        tipDiv.innerHTML = `<i class="fas fa-quote-left"></i> ${priceData.tip}`;
+        
+        console.log(`${priceData.coin.toUpperCase()} current price: $${priceData.price}`);
+        console.log(`7-day change: ${priceData.price_change_7d}%`);
+        console.log(`Investment tip: ${priceData.tip}`);
+        console.log('Price History Data:', priceData.price_history);
+        
+      } catch (error) {
+        priceDiv.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i> Network error. Please check your connection and try again.</div>';
+        tipDiv.innerHTML = '<div class="error">Failed to generate insights</div>';
+        historyDiv.innerHTML = '<div class="error">Failed to load price history</div>';
+        bestBuyDiv.innerHTML = '<div class="error">Failed to analyze best buy opportunity</div>';
+        console.error('Fetch error:', error);
+      }
+    }
+
+    function displayPriceHistory(historyData) {
+      const historyDiv = document.getElementById('priceHistory');
+      const prices = historyData.price_points;
+      
+      let timelineHTML = '<div class="price-timeline">';
+      
+      prices.forEach((point, index) => {
+        const isLowest = point.price === Math.min(...prices.map(p => p.price));
+        const itemClass = isLowest ? 'timeline-item best-buy' : 'timeline-item';
+        
+        timelineHTML += `
+          <div class="${itemClass}">
+            <div class="timeline-price">$${point.price.toLocaleString()}</div>
+            <div class="timeline-label">${point.label}</div>
+          </div>
+        `;
+      });
+      
+      timelineHTML += '</div>';
+      timelineHTML += `<small style="color: #666; text-align: center; display: block; margin-top: 10px;">
+        💡 Green highlight shows the best buying opportunity in the past 7 days
+      </small>`;
+      
+      historyDiv.innerHTML = timelineHTML;
+    }
+
+    function analyzeBestBuyOpportunity(historyData, currentPrice) {
+      const bestBuyDiv = document.getElementById('bestBuyTime');
+      const prices = historyData.price_points;
+      
+      const lowestPrice = Math.min(...prices.map(p => p.price));
+      const lowestPricePoint = prices.find(p => p.price === lowestPrice);
+      const potentialGain = ((currentPrice - lowestPrice) / lowestPrice) * 100;
+      
+      const highestPrice = Math.max(...prices.map(p => p.price));
+      const avgPrice = prices.reduce((sum, p) => sum + p.price, 0) / prices.length;
+      
+      bestBuyDiv.innerHTML = `
+        <div style="text-align: center;">
+          <div style="margin-bottom: 10px;">
+            <strong>Best Entry Point:</strong><br>
+            $${lowestPrice.toLocaleString()} (${lowestPricePoint.label})
+          </div>
+          <div style="margin-bottom: 10px;">
+            <strong>Potential Gain:</strong><br>
+            <span class="price-change positive">+${potentialGain.toFixed(2)}%</span>
+          </div>
+          <div style="font-size: 0.9rem; color: #666;">
+            7-day High: $${highestPrice.toLocaleString()}<br>
+            7-day Average: $${avgPrice.toLocaleString()}
+          </div>
+        </div>
+      `;
+    }
+
+    function resetPortfolioCalculator() {
+      document.getElementById('investmentAmount').value = '';
+      document.getElementById('purchasePrice').value = '';
+      document.getElementById('portfolioResult').innerHTML = '';
+      document.getElementById('priceHistory').innerHTML = '<div class="loading">Get crypto data to view price history</div>';
+      document.getElementById('bestBuyTime').innerHTML = '<div class="loading">Analyze price history to find best entry point</div>';
+      console.log('Portfolio calculator and price history reset for new cryptocurrency selection');
+    }
+
+    function calculatePortfolio() {
+      const investmentAmount = parseFloat(document.getElementById('investmentAmount').value);
+      const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+      const resultDiv = document.getElementById('portfolioResult');
+
+      if (!currentCryptoData) {
+        resultDiv.innerHTML = '<div class="error">Please get crypto data first!</div>';
+        return;
+      }
+
+      if (!investmentAmount || !purchasePrice || investmentAmount <= 0 || purchasePrice <= 0) {
+        resultDiv.innerHTML = '<div class="error">Please enter valid amounts</div>';
+        return;
+      }
+
+      const currentPrice = currentCryptoData.price;
+      const coinsOwned = investmentAmount / purchasePrice;
+      const currentValue = coinsOwned * currentPrice;
+      const profitLoss = currentValue - investmentAmount;
+      const profitLossPercent = ((profitLoss / investmentAmount) * 100);
+
+      const isProfit = profitLoss >= 0;
+      const profitClass = isProfit ? 'positive' : 'negative';
+      const profitIcon = isProfit ? 'fa-arrow-up' : 'fa-arrow-down';
+
+      // Create portfolio calculation result object
+      const portfolioCalculation = {
+        cryptocurrency: currentCryptoData.coin,
+        api_source: "CoinGecko API",
+        calculation_timestamp: new Date().toISOString(),
+        input_data: {
+          investment_amount_usd: investmentAmount,
+          purchase_price_usd: purchasePrice,
+          current_price_usd: currentPrice
+        },
+        calculated_results: {
+          coins_owned: parseFloat(coinsOwned.toFixed(8)),
+          current_portfolio_value_usd: parseFloat(currentValue.toFixed(2)),
+          profit_loss_usd: parseFloat(profitLoss.toFixed(2)),
+          profit_loss_percentage: parseFloat(profitLossPercent.toFixed(2)),
+          is_profitable: isProfit
+        },
+        market_data: {
+          price_change_7d_percentage: currentCryptoData.price_change_7d,
+          currency: currentCryptoData.currency
+        }
+      };
+
+      // Output JSON to console for project rubrics
+      console.log('=== PORTFOLIO CALCULATION API RESULT ===');
+      console.log('Portfolio Calculation JSON:', portfolioCalculation);
+      console.log('Raw Portfolio JSON:', JSON.stringify(portfolioCalculation, null, 2));
+      console.log('==========================================');
+
+      resultDiv.innerHTML = `
+        <div style="text-align: center;">
+          <div><strong>Coins Owned:</strong> ${coinsOwned.toFixed(6)}</div>
+          <div><strong>Current Value:</strong> $${currentValue.toLocaleString()}</div>
+          <div class="price-change ${profitClass}" style="margin-top: 10px;">
+            <i class="fas ${profitIcon}"></i> ${isProfit ? '+' : ''}$${Math.abs(profitLoss).toLocaleString()} (${profitLossPercent >= 0 ? '+' : ''}${profitLossPercent.toFixed(2)}%)
+          </div>
+          <small style="display: block; margin-top: 10px; color: #666;">
+            📊 Check console for detailed JSON output
+          </small>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

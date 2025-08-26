@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoDash - Spring Boot Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            display: none;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .crypto-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .crypto-symbol {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .crypto-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .crypto-change {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .portfolio-section {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .portfolio-item {
+            text-align: center;
+        }
+
+        .portfolio-item .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+
+        .portfolio-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .timeline {
+            margin-top: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+            margin-right: 1rem;
+        }
+
+        .timeline-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .crypto-price {
+                font-size: 2rem;
+            }
+            
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> CryptoDash</h1>
+            <p>Spring Boot Edition - Real-time cryptocurrency tracking with portfolio analysis</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="cryptoSymbol">
+                    <i class="fab fa-bitcoin"></i> Cryptocurrency Symbol
+                </label>
+                <input 
+                    type="text" 
+                    id="cryptoSymbol" 
+                    placeholder="e.g., bitcoin, ethereum, dogecoin"
+                    value="bitcoin"
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="investmentAmount">
+                    <i class="fas fa-dollar-sign"></i> Investment Amount (Optional)
+                </label>
+                <input 
+                    type="number" 
+                    id="investmentAmount" 
+                    placeholder="e.g., 1000"
+                    step="0.01"
+                    min="0"
+                >
+            </div>
+
+            <button class="btn" onclick="getCryptoInfo()">
+                <i class="fas fa-search"></i> Get Crypto Info
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Fetching cryptocurrency data...</p>
+        </div>
+
+        <div class="results" id="results">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        async function getCryptoInfo() {
+            const symbol = document.getElementById('cryptoSymbol').value.trim();
+            const investmentAmount = document.getElementById('investmentAmount').value.trim();
+            
+            if (!symbol) {
+                alert('Please enter a cryptocurrency symbol');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            try {
+                let url = `/crypto-info?symbol=${encodeURIComponent(symbol)}`;
+                if (investmentAmount && investmentAmount > 0) {
+                    url += `&investmentAmount=${investmentAmount}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    throw new Error('Failed to fetch data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error fetching cryptocurrency data. Please try again.
+                    </div>
+                `;
+                document.getElementById('results').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const changeClass = data.price_change_7d >= 0 ? 'positive' : 'negative';
+            const changeIcon = data.price_change_7d >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
+            let html = `
+                <div class="crypto-card">
+                    <div class="crypto-symbol">${data.coin.toUpperCase()}</div>
+                    <div class="crypto-price">$${data.price.toFixed(2)}</div>
+                    <div class="crypto-change ${changeClass}">
+                        <i class="fas ${changeIcon}"></i>
+                        ${data.price_change_7d.toFixed(2)}% (7 days)
+                    </div>
+                </div>
+            `;
+
+            // Portfolio section if investment amount was provided
+            if (data.investment_amount) {
+                const gainClass = data.portfolio_gain >= 0 ? 'positive' : 'negative';
+                html += `
+                    <div class="portfolio-section">
+                        <h3><i class="fas fa-briefcase"></i> Portfolio Analysis</h3>
+                        <div class="portfolio-grid">
+                            <div class="portfolio-item">
+                                <div class="label">Investment</div>
+                                <div class="value">$${data.investment_amount.toFixed(2)}</div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="label">Coins Bought</div>
+                                <div class="value">${data.coins_bought.toFixed(6)}</div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="label">Current Value</div>
+                                <div class="value">$${data.current_value.toFixed(2)}</div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="label">P&L</div>
+                                <div class="value ${gainClass}">$${data.portfolio_gain.toFixed(2)}</div>
+                            </div>
+                            <div class="portfolio-item">
+                                <div class="label">Return %</div>
+                                <div class="value ${gainClass}">${data.portfolio_gain_percentage.toFixed(2)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Price history section
+            if (data.price_history && data.price_history.price_points) {
+                html += `
+                    <div class="info-section">
+                        <h3><i class="fas fa-chart-area"></i> Price History (${data.price_history.period})</h3>
+                        <div class="timeline">
+                `;
+
+                data.price_history.price_points.forEach(point => {
+                    html += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div>
+                                    <strong>${point.label}</strong><br>
+                                    <small>${point.date}</small>
+                                </div>
+                                <div><strong>$${point.price.toFixed(2)}</strong></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                        <p><small><i class="fas fa-info-circle"></i> ${data.price_history.note}</small></p>
+                    </div>
+                `;
+            }
+
+            // Investment tip section
+            html += `
+                <div class="info-section">
+                    <h3><i class="fas fa-lightbulb"></i> Investment Tip</h3>
+                    <p>${data.tip}</p>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('cryptoSymbol').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getCryptoInfo();
+            }
+        });
+
+        document.getElementById('investmentAmount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getCryptoInfo();
+            }
+        });
+    </script>
+</body>
+</html>
