@@ -207,11 +207,11 @@
         <div id="portfolioCalculator">
           <div style="margin-bottom: 15px;">
             <label>Investment Amount ($):</label>
-            <input type="number" id="investmentAmount" placeholder="1000" min="1" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="text" id="investmentAmount" placeholder="1,000" min="1" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
           </div>
           <div style="margin-bottom: 15px;">
             <label>Purchase Price ($):</label>
-            <input type="number" id="purchasePrice" placeholder="Enter your buy price" min="0.01" step="0.01" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="text" id="purchasePrice" placeholder="42,500.75" min="0.01" step="0.01" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;">
           </div>
           <button onclick="calculatePortfolio()" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Calculate P&L</button>
           <div id="portfolioResult" style="margin-top: 15px;"></div>
@@ -231,6 +231,38 @@
   </div>
 
   <script>
+    // Number formatting functions
+    function formatNumberWithCommas(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function removeCommas(str) {
+      return str.replace(/,/g, '');
+    }
+
+    function formatCurrencyInput(input) {
+      // Remove all non-digit characters except decimal point
+      let value = input.value.replace(/[^\d.]/g, '');
+      
+      // Ensure only one decimal point
+      let parts = value.split('.');
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts.slice(1).join('');
+      }
+      
+      // Format the integer part with commas
+      if (parts[0]) {
+        parts[0] = formatNumberWithCommas(parts[0]);
+        value = parts.join('.');
+      }
+      
+      input.value = value;
+    }
+
+    function getNumericValue(input) {
+      return parseFloat(removeCommas(input.value)) || 0;
+    }
+
     let currentCryptoData = null;
     let priceHistoryData = null;
 
@@ -383,8 +415,8 @@
     }
 
     function calculatePortfolio() {
-      const investmentAmount = parseFloat(document.getElementById('investmentAmount').value);
-      const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+      const investmentAmount = getNumericValue(document.getElementById('investmentAmount'));
+      const purchasePrice = getNumericValue(document.getElementById('purchasePrice'));
       const resultDiv = document.getElementById('portfolioResult');
 
       if (!currentCryptoData) {
@@ -449,6 +481,31 @@
         </div>
       `;
     }
+
+    // Add formatting event listeners when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Format investment amount input
+      const investmentInput = document.getElementById('investmentAmount');
+      const purchasePriceInput = document.getElementById('purchasePrice');
+      
+      // Format on input (as user types)
+      investmentInput.addEventListener('input', function() {
+        formatCurrencyInput(this);
+      });
+      
+      purchasePriceInput.addEventListener('input', function() {
+        formatCurrencyInput(this);
+      });
+      
+      // Format on paste
+      investmentInput.addEventListener('paste', function() {
+        setTimeout(() => formatCurrencyInput(this), 10);
+      });
+      
+      purchasePriceInput.addEventListener('paste', function() {
+        setTimeout(() => formatCurrencyInput(this), 10);
+      });
+    });
   </script>
 </body>
 </html>
